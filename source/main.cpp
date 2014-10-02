@@ -68,64 +68,68 @@ static GLuint load_box(atomic::Program *program)
 
 	// Upload vertex data
 	GLfloat vertexData[] = {
-		//  X     Y     Z       U     V
+		//  X     Y     Z       U     V  Normal
 		// bottom
-		-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,
-		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
-		-1.0f, -1.0f,  1.0f, 0.0f, 1.0f,
-		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
-		 1.0f, -1.0f,  1.0f, 1.0f, 1.0f,
-		-1.0f, -1.0f,  1.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  0.0f,
+		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
+		-1.0f, -1.0f,  1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
+		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
+		 1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  0.0f, -1.0f,  0.0f,
+		-1.0f, -1.0f,  1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
 
 		// top
-		-1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
-		-1.0f, 1.0f,  1.0f, 0.0f, 1.0f,
-		 1.0f, 1.0f, -1.0f, 1.0f, 0.0f,
-		 1.0f, 1.0f, -1.0f, 1.0f, 0.0f,
-		-1.0f, 1.0f,  1.0f, 0.0f, 1.0f,
-		 1.0f, 1.0f,  1.0f, 1.0f, 1.0f,
+		-1.0f, 1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  1.0f,  0.0f,
+		-1.0f, 1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
+		 1.0f, 1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
+		 1.0f, 1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
+		-1.0f, 1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
+		 1.0f, 1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  1.0f,  0.0f,
 
 		// front
-		-1.0f, -1.0f, 1.0f, 1.0f, 0.0f,
-		 1.0f, -1.0f, 1.0f, 0.0f, 0.0f,
-		-1.0f,  1.0f, 1.0f, 1.0f, 1.0f,
-		 1.0f, -1.0f, 1.0f, 0.0f, 0.0f,
-		 1.0f,  1.0f, 1.0f, 0.0f, 1.0f,
-		-1.0f,  1.0f, 1.0f, 1.0f, 1.0f,
+		-1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  0.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  0.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
 
 		// back
-		-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,
-		-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,
-		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
-		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
-		-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,
-		 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,
+		-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  0.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  0.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
 
 		// left
-		-1.0f, -1.0f,  1.0f, 0.0f, 1.0f,
-		-1.0f,  1.0f, -1.0f, 1.0f, 0.0f,
-		-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,
-		-1.0f, -1.0f,  1.0f, 0.0f, 1.0f,
-		-1.0f,  1.0f,  1.0f, 1.0f, 1.0f,
-		-1.0f,  1.0f, -1.0f, 1.0f, 0.0f,
+		-1.0f, -1.0f,  1.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f,  1.0f, -1.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f, -1.0f,  1.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f,  1.0f,  1.0f, 1.0f, 1.0f, -1.0f,  0.0f,  0.0f,
+		-1.0f,  1.0f, -1.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
 
 		// right
-		1.0f, -1.0f,  1.0f, 1.0f, 1.0f,
-		1.0f, -1.0f, -1.0f, 1.0f, 0.0f,
-		1.0f,  1.0f, -1.0f, 0.0f, 0.0f,
-		1.0f, -1.0f,  1.0f, 1.0f, 1.0f,
-		1.0f,  1.0f, -1.0f, 0.0f, 0.0f,
-		1.0f,  1.0f,  1.0f, 0.0f, 1.0f
+		1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+		1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
+		1.0f,  1.0f, -1.0f, 0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
+		1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+		1.0f,  1.0f, -1.0f, 0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
+		1.0f,  1.0f,  1.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
 	};
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
 
 	// [0, 1, 2] -> vert
 	glEnableVertexAttribArray(program->attrib("vert"));
-	glVertexAttribPointer(program->attrib("vert"), 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), NULL);
+	glVertexAttribPointer(program->attrib("vert"), 3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), NULL);
 
 	// [3, 4] -> vertTexCoord
 	glEnableVertexAttribArray(program->attrib("vertTexCoord"));
-	glVertexAttribPointer(program->attrib("vertTexCoord"), 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (const GLvoid *)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(program->attrib("vertTexCoord"), 2, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), (const GLvoid *)(3 * sizeof(GLfloat)));
+
+	// [5, 6, 7] -> vertNormal
+	glEnableVertexAttribArray(program->attrib("vertNormal"));
+	glVertexAttribPointer(program->attrib("vertNormal"), 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (const GLvoid *)(5 * sizeof(GLfloat)));
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -201,6 +205,7 @@ void atomic_main(int argc, char *argv[])
 		program->setUniform("model", model);
 
 		program->setUniform("time", time);
+		program->setUniform("sun", glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f)));
 		//glUniform1f(program->uniform("time"), (GLfloat)time);
 		//glBindVertexArray(triangle);
 		glBindVertexArray(box);
