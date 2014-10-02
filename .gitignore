@@ -2,7 +2,7 @@
 *.suo
 *.vcxproj.user
 *.sdf
-*.opensdfs
+*.opensdf
 Debug/
 Release/
 ipch/

@@ -1,6 +1,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#define GLM_FORCE_RADIANS 
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <stdexcept>
@@ -190,9 +192,9 @@ void atomic_main(int argc, char *argv[])
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 projection = glm::perspective<float>(50.0, (float)(width) / (float)(height), 0.1, 10);
+		glm::mat4 projection = glm::perspective<float>(glm::radians(50.0f), (float)(width) / (float)(height), 0.1, 10);
 		glm::mat4 view = glm::lookAt(glm::vec3(3,3,3), glm::vec3(0,0,0), glm::vec3(0,1,0));
-		glm::mat4 model = glm::rotate(glm::mat4(), fmodf(time * 180.0f, 360.0f), glm::vec3(0,1,0));
+		glm::mat4 model = glm::rotate(glm::mat4(), fmodf(time * glm::radians(180.0f), glm::radians(360.0f)), glm::vec3(0,1,0));
 
 		program->setUniform("projection", projection);
 		program->setUniform("view", view);
