@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="resources">
+      <UniqueIdentifier>{593e0d41-9466-4b3b-ad5d-998d326748b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{5ee1e0f5-a06c-4f87-9779-9e05dd1a5b72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\atomic">
+      <UniqueIdentifier>{ce1876b2-208b-4b52-ae08-5fa6156f4a00}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\main.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atomic\Bitmap.cpp">
+      <Filter>source\atomic</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atomic\Program.cpp">
+      <Filter>source\atomic</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atomic\Shader.cpp">
+      <Filter>source\atomic</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atomic\Texture.cpp">
+      <Filter>source\atomic</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atomic\Drawable.cpp">
+      <Filter>source\atomic</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\main_frag.glsl">
+      <Filter>resources</Filter>
+    </None>
+    <None Include="resources\main_vert.glsl">
+      <Filter>resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\hazard.png">
+      <Filter>resources</Filter>
+    </Image>
+    <Image Include="resources\wooden-crate.jpg">
+      <Filter>resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\atomic\Bitmap.h">
+      <Filter>source\atomic</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atomic\Program.h">
+      <Filter>source\atomic</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atomic\Shader.h">
+      <Filter>source\atomic</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atomic\Texture.h">
+      <Filter>source\atomic</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atomic\Drawable.h">
+      <Filter>source\atomic</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

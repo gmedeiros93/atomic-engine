@@ -1,0 +1,9 @@
+*.obj
+*.suo
+*.vcxproj.user
+*.sdf
+*.opensdfs
+Debug/
+Release/
+ipch/
+Thumbs.db
