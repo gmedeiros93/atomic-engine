@@ -27,7 +27,7 @@
     <ClCompile Include="source\atomic\Texture.cpp">
       <Filter>source\atomic</Filter>
     </ClCompile>
-    <ClCompile Include="source\atomic\Drawable.cpp">
+    <ClCompile Include="source\atomic\Camera.cpp">
       <Filter>source\atomic</Filter>
     </ClCompile>
   </ItemGroup>
@@ -60,7 +60,7 @@
     <ClInclude Include="source\atomic\Texture.h">
       <Filter>source\atomic</Filter>
     </ClInclude>
-    <ClInclude Include="source\atomic\Drawable.h">
+    <ClInclude Include="source\atomic\Camera.h">
       <Filter>source\atomic</Filter>
     </ClInclude>
   </ItemGroup>

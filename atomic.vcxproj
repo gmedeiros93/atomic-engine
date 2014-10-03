@@ -77,7 +77,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\atomic\Bitmap.cpp" />
-    <ClCompile Include="source\atomic\Drawable.cpp" />
+    <ClCompile Include="source\atomic\Camera.cpp" />
     <ClCompile Include="source\atomic\Program.cpp" />
     <ClCompile Include="source\atomic\Shader.cpp" />
     <ClCompile Include="source\atomic\Texture.cpp" />
@@ -93,7 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\atomic\Bitmap.h" />
-    <ClInclude Include="source\atomic\Drawable.h" />
+    <ClInclude Include="source\atomic\Camera.h" />
     <ClInclude Include="source\atomic\Program.h" />
     <ClInclude Include="source\atomic\Shader.h" />
     <ClInclude Include="source\atomic\Texture.h" />

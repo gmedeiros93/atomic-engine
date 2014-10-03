@@ -1,6 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#define GLM_FORCE_RADIANS 
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -12,7 +12,7 @@
 #include "atomic/Program.h"
 #include "atomic/Bitmap.h"
 #include "atomic/Texture.h"
-#include "atomic/Drawable.h"
+#include "atomic/Camera.h"
 
 void glfw_error(int code, const char *msg)
 {
@@ -137,6 +137,24 @@ static GLuint load_box(atomic::Program *program)
 	return vao;
 }
 
+glm::vec3 handle_mouse(GLFWwindow *window)
+{
+	int width, height;
+	double mouse_x, mouse_y;
+
+	glfwGetWindowSize(window, &width, &height);
+	glfwGetCursorPos(window, &mouse_x, &mouse_y);
+
+	double center_x = (float)width / 2.0f;
+	double center_y = (float)height / 2.0f;
+
+	double yaw = mouse_x - center_x;
+	double pitch = mouse_y - center_y;
+
+	glfwSetCursorPos(window, center_x, center_y);
+	return glm::vec3(yaw, pitch, 0.0f);
+}
+
 void atomic_main(int argc, char *argv[])
 {
 	glfwSetErrorCallback(glfw_error);
@@ -153,8 +171,9 @@ void atomic_main(int argc, char *argv[])
 		throw std::runtime_error("Failed to create window");
 
 	glfwMakeContextCurrent(window);
-	glewExperimental = GL_TRUE;
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+	glewExperimental = GL_TRUE;
 	GLenum err = glewInit();
 
 	if (err != GLEW_OK)
@@ -165,9 +184,11 @@ void atomic_main(int argc, char *argv[])
 	glClearColor(0.225f, 0.15f, 0.2f, 0.0f);
 
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
 
-	//glEnable(GL_BLEND);
+	glDepthFunc(GL_LEQUAL);
+	glCullFace(GL_BACK);
 
 	std::vector<atomic::Shader> shaders;
 	shaders.push_back(atomic::Shader::fromFile("main_vert.glsl", GL_VERTEX_SHADER));
@@ -180,6 +201,10 @@ void atomic_main(int argc, char *argv[])
 	bitmap.flipVertically();
 	atomic::Texture *texture = new atomic::Texture(bitmap);
 
+	atomic::Camera *camera = new atomic::Camera();
+	camera->setPosition(glm::vec3(0,0,4));
+	camera->setClippingPlanes(0.1f, 10.0f);
+
 	//GLuint triangle = load_triangle(program);
 	GLuint box = load_box(program);
 
@@ -191,18 +216,22 @@ void atomic_main(int argc, char *argv[])
 		double time = glfwGetTime();
 		int width, height;
 
+		camera->look(handle_mouse(window) * 0.5f);
+
 		glfwGetFramebufferSize(window, &width, &height);
+		float aspect = (float)(width) / (float)(height);
 
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 projection = glm::perspective<float>(glm::radians(50.0f), (float)(width) / (float)(height), 0.1, 10);
-		glm::mat4 view = glm::lookAt(glm::vec3(3,3,3), glm::vec3(0,0,0), glm::vec3(0,1,0));
-		glm::mat4 model = glm::rotate(glm::mat4(), fmodf(time * glm::radians(180.0f), glm::radians(360.0f)), glm::vec3(0,1,0));
+		glm::mat4 model = glm::rotate(glm::mat4(), fmodf(((float)(time)) * 45.0f, 360.0f), glm::vec3(0,1,0));
 
-		program->setUniform("projection", projection);
-		program->setUniform("view", view);
+		program->setUniform("projection", camera->getProjectionMatrix(aspect));
+		program->setUniform("view", camera->getViewMatrix());
 		program->setUniform("model", model);
+
+		program->setUniform("lightPos", glm::vec3(3,3,3));
+		program->setUniform("cameraPos", camera->getPosition());
 
 		program->setUniform("time", time);
 		program->setUniform("sun", glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f)));
@@ -222,6 +251,29 @@ void atomic_main(int argc, char *argv[])
 		glfwPollEvents();
 
 		delta = glfwGetTime() - time;
+		
+		// update
+		const float moveSpeed = 10.0f;
+
+		float k_w = glfwGetKey(window, GLFW_KEY_W) ?  1.0f : 0.0f;
+		float k_s = glfwGetKey(window, GLFW_KEY_S) ? -1.0f : 0.0f;
+		float k_d = glfwGetKey(window, GLFW_KEY_D) ?  1.0f : 0.0f;
+		float k_a = glfwGetKey(window, GLFW_KEY_A) ? -1.0f : 0.0f;
+		float k_z = glfwGetKey(window, GLFW_KEY_Z) ?  1.0f : 0.0f;
+		float k_x = glfwGetKey(window, GLFW_KEY_X) ? -1.0f : 0.0f;
+
+		float forward = k_w + k_s;
+		float right = k_d + k_a;
+		float up = k_z + k_x;
+
+		if (forward != 0.0f)
+			camera->move(camera->getForwardVector() * moveSpeed * forward * (float)delta);
+
+		if (right != 0.0f)
+			camera->move(camera->getRightVector() * moveSpeed * right * (float)delta);
+
+		if (up != 0.0f)
+			camera->move(glm::vec3(0,1,0) * moveSpeed * up * (float)delta);
 
 		// show FPS in title
 		update_title_accum += delta;
