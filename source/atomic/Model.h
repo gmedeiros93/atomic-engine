@@ -31,17 +31,26 @@ namespace atomic
 	public:
 		ModelInstance(ModelAsset *asset);
 
-		void setTransform(glm::mat4 transform);
-		glm::mat4 getTransform() const;
+		void setPosition(glm::vec3 position);
+		void setRotation(glm::mat4 rotation);
+		void setScale(glm::vec3 scale);
+
+		glm::vec3 getPosition() const;
+		glm::mat4 getRotation() const;
+		glm::vec3 getScale() const;
+
+		glm::mat4 getModelMatrix() const;
 
 		void draw(Camera *camera, float aspect);
 
 	private:
 		ModelAsset* asset;
-		glm::mat4 transform;
+
+		glm::vec3 position;
+		glm::mat4 rotation;
+		glm::vec3 scale;		
 	};
 };
 
 atomic::ModelAsset *create_box_asset(atomic::Program *shaders);
-atomic::ModelAsset *from_obj(atomic::Program *shaders, char *filePath);
 atomic::ModelAsset *from_bin(atomic::Program *shaders, char *filePath);

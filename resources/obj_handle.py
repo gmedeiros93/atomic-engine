@@ -35,13 +35,14 @@ def load_obj(path):
     #return verts_out, norms_out
     return verts_out
 
+import random
 def to_vbo(verts, norms):
     vbo = []
 
     for vert, norm in zip(verts, norms):
         #print(vert+[0.0,0.0]+norm)
         vbo += vert
-        vbo += [0.0, 0.0]
+        vbo += [random.random(), random.random()]
         vbo += norm
 
     return vbo

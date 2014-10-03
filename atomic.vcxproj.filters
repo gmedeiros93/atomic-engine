@@ -10,9 +10,6 @@
     <Filter Include="source\atomic">
       <UniqueIdentifier>{ce1876b2-208b-4b52-ae08-5fa6156f4a00}</UniqueIdentifier>
     </Filter>
-    <Filter Include="source\lib">
-      <UniqueIdentifier>{dc36eba0-5de0-4052-9c28-c3cbdccc9959}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp">
@@ -33,10 +30,13 @@
     <ClCompile Include="source\atomic\Camera.cpp">
       <Filter>source\atomic</Filter>
     </ClCompile>
-    <ClCompile Include="source\lib\tiny_obj_loader.cc">
-      <Filter>source\lib</Filter>
-    </ClCompile>
     <ClCompile Include="source\atomic\Model.cpp">
+      <Filter>source\atomic</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atomic\Window.cpp">
+      <Filter>source\atomic</Filter>
+    </ClCompile>
+    <ClCompile Include="source\atomic\ClientReactor.cpp">
       <Filter>source\atomic</Filter>
     </ClCompile>
   </ItemGroup>
@@ -45,6 +45,12 @@
       <Filter>resources</Filter>
     </None>
     <None Include="resources\main_vert.glsl">
+      <Filter>resources</Filter>
+    </None>
+    <None Include="resources\prim_vert.glsl">
+      <Filter>resources</Filter>
+    </None>
+    <None Include="resources\prim_frag.glsl">
       <Filter>resources</Filter>
     </None>
   </ItemGroup>
@@ -72,10 +78,13 @@
     <ClInclude Include="source\atomic\Camera.h">
       <Filter>source\atomic</Filter>
     </ClInclude>
-    <ClInclude Include="source\lib\tiny_obj_loader.h">
-      <Filter>source\lib</Filter>
-    </ClInclude>
     <ClInclude Include="source\atomic\Model.h">
+      <Filter>source\atomic</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atomic\Window.h">
+      <Filter>source\atomic</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atomic\ClientReactor.h">
       <Filter>source\atomic</Filter>
     </ClInclude>
   </ItemGroup>

@@ -83,7 +83,8 @@ glm::mat4 Camera::getViewMatrix() const
 
 glm::mat4 Camera::getProjectionMatrix(float aspectRatio) const
 {
-	return glm::perspective(fieldOfView, aspectRatio, zNear, zFar);
+	//return glm::perspective(fieldOfView, aspectRatio, zNear, zFar);
+	return glm::infinitePerspective(fieldOfView, aspectRatio, zNear);
 }
 
 glm::vec3 Camera::getForwardVector() const

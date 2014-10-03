@@ -80,14 +80,17 @@
     <ClCompile Include="source\atomic\Camera.cpp" />
     <ClCompile Include="source\atomic\Model.cpp" />
     <ClCompile Include="source\atomic\Program.cpp" />
+    <ClCompile Include="source\atomic\ClientReactor.cpp" />
     <ClCompile Include="source\atomic\Shader.cpp" />
     <ClCompile Include="source\atomic\Texture.cpp" />
-    <ClCompile Include="source\lib\tiny_obj_loader.cc" />
+    <ClCompile Include="source\atomic\Window.cpp" />
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\main_frag.glsl" />
     <None Include="resources\main_vert.glsl" />
+    <None Include="resources\prim_frag.glsl" />
+    <None Include="resources\prim_vert.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\hazard.png" />
@@ -98,9 +101,10 @@
     <ClInclude Include="source\atomic\Camera.h" />
     <ClInclude Include="source\atomic\Model.h" />
     <ClInclude Include="source\atomic\Program.h" />
+    <ClInclude Include="source\atomic\ClientReactor.h" />
     <ClInclude Include="source\atomic\Shader.h" />
     <ClInclude Include="source\atomic\Texture.h" />
-    <ClInclude Include="source\lib\tiny_obj_loader.h" />
+    <ClInclude Include="source\atomic\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
