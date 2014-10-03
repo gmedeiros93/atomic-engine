@@ -7,135 +7,14 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <list>
 
 #include "atomic/Shader.h"
 #include "atomic/Program.h"
 #include "atomic/Bitmap.h"
 #include "atomic/Texture.h"
 #include "atomic/Camera.h"
-
-void glfw_error(int code, const char *msg)
-{
-	std::string what = "GLFW error ";
-	what += code;
-	what += ": ";
-	what += msg;
-	throw std::runtime_error(what);
-}
-
-static GLuint load_triangle(atomic::Program *program)
-{
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	// Upload vertex data
-	GLfloat vertexData[] = {
-		//  X     Y     Z       U     V
-		 0.0f,  0.8f, 0.0f, 0.5f, 1.0f,
-		-0.8f, -0.8f, 0.0f, 0.0f, 0.0f,
-		 0.8f, -0.8f, 0.0f, 1.0f, 0.0f,
-	};
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
-
-	// [0, 1, 2] -> vert
-	glEnableVertexAttribArray(program->attrib("vert"));
-	glVertexAttribPointer(program->attrib("vert"), 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), NULL);
-
-	// [3, 4] -> vertTexCoord
-	glEnableVertexAttribArray(program->attrib("vertTexCoord"));
-	glVertexAttribPointer(program->attrib("vertTexCoord"), 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (const GLvoid *)(3 * sizeof(GLfloat)));
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	return vao;
-}
-
-static GLuint load_box(atomic::Program *program)
-{
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	// Upload vertex data
-	GLfloat vertexData[] = {
-		//  X     Y     Z       U     V  Normal
-		// bottom
-		-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-		-1.0f, -1.0f,  1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f, -1.0f,  0.0f,
-		 1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-		-1.0f, -1.0f,  1.0f, 0.0f, 1.0f,  0.0f, -1.0f,  0.0f,
-
-		// top
-		-1.0f, 1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-		-1.0f, 1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-		 1.0f, 1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-		 1.0f, 1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-		-1.0f, 1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-		 1.0f, 1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  1.0f,  0.0f,
-
-		// front
-		-1.0f, -1.0f,  1.0f, 1.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f, 0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f, 0.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f, 1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-
-		// back
-		-1.0f, -1.0f, -1.0f, 0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  0.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  0.0f,  0.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f, 0.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f, 1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-
-		// left
-		-1.0f, -1.0f,  1.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-		-1.0f,  1.0f, -1.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
-		-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f,  0.0f,  0.0f,
-		-1.0f, -1.0f,  1.0f, 0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-		-1.0f,  1.0f,  1.0f, 1.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-		-1.0f,  1.0f, -1.0f, 1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
-
-		// right
-		1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-		1.0f, -1.0f, -1.0f, 1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-		1.0f,  1.0f, -1.0f, 0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-		1.0f, -1.0f,  1.0f, 1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-		1.0f,  1.0f, -1.0f, 0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-		1.0f,  1.0f,  1.0f, 0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-	};
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
-
-	// [0, 1, 2] -> vert
-	glEnableVertexAttribArray(program->attrib("vert"));
-	glVertexAttribPointer(program->attrib("vert"), 3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), NULL);
-
-	// [3, 4] -> vertTexCoord
-	glEnableVertexAttribArray(program->attrib("vertTexCoord"));
-	glVertexAttribPointer(program->attrib("vertTexCoord"), 2, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), (const GLvoid *)(3 * sizeof(GLfloat)));
-
-	// [5, 6, 7] -> vertNormal
-	glEnableVertexAttribArray(program->attrib("vertNormal"));
-	glVertexAttribPointer(program->attrib("vertNormal"), 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (const GLvoid *)(5 * sizeof(GLfloat)));
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-
-	return vao;
-}
+#include "atomic/Model.h"
 
 glm::vec3 handle_mouse(GLFWwindow *window)
 {
@@ -157,8 +36,6 @@ glm::vec3 handle_mouse(GLFWwindow *window)
 
 void atomic_main(int argc, char *argv[])
 {
-	glfwSetErrorCallback(glfw_error);
-
 	if (!glfwInit())
 		throw std::runtime_error("glfwInit failed");
 
@@ -188,35 +65,54 @@ void atomic_main(int argc, char *argv[])
 	glEnable(GL_CULL_FACE);
 
 	glDepthFunc(GL_LEQUAL);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glCullFace(GL_BACK);
+
+	std::list<atomic::ModelInstance*> instances;
+	atomic::Camera *camera = new atomic::Camera();
+	camera->setPosition(glm::vec3(0, 0, 4));
 
 	std::vector<atomic::Shader> shaders;
 	shaders.push_back(atomic::Shader::fromFile("main_vert.glsl", GL_VERTEX_SHADER));
 	shaders.push_back(atomic::Shader::fromFile("main_frag.glsl", GL_FRAGMENT_SHADER));
 	atomic::Program *program = new atomic::Program(shaders);
-	program->use();
+	
+	atomic::ModelAsset *boxAsset = create_box_asset(program);
+	//instances.push_back(new atomic::ModelInstance(boxAsset));
 
-	//atomic::Bitmap bitmap = atomic::Bitmap::fromFile("hazard.png");
-	atomic::Bitmap bitmap = atomic::Bitmap::fromFile("wooden-crate.jpg");
-	bitmap.flipVertically();
-	atomic::Texture *texture = new atomic::Texture(bitmap);
+	//atomic::ModelAsset *teapot = from_obj(program, "test.obj");
+	double time = glfwGetTime();
+	atomic::ModelAsset *teapot = from_bin(program, "out.bin");
+	double spent = glfwGetTime() - time;
+	printf("Loaded %d vertices in %f seconds", teapot->drawCount, spent);
 
-	atomic::Camera *camera = new atomic::Camera();
-	camera->setPosition(glm::vec3(0,0,4));
-	camera->setClippingPlanes(0.1f, 10.0f);
+	atomic::ModelInstance *t = new atomic::ModelInstance(teapot);
+	t->setTransform(glm::translate(glm::mat4(), glm::vec3(-1.0f, -2.0f, -5.0f)));
+	instances.push_back(t);
 
-	//GLuint triangle = load_triangle(program);
-	GLuint box = load_box(program);
+	/*for (int i = 0; i < 50; i++)
+	{
+		atomic::ModelInstance *box = new atomic::ModelInstance(teapot);
+		box->setTransform(glm::translate(glm::mat4(), glm::vec3(sin(i)*8, cos(i)*8, -sin(i)*8)));
+		instances.push_back(box);
+	}*/
 
 	double delta = 0.0;
 	double update_title_accum = 0.0;
+
+	int had_focus = false;
 
 	while (!glfwWindowShouldClose(window))
 	{
 		double time = glfwGetTime();
 		int width, height;
 
-		camera->look(handle_mouse(window) * 0.5f);
+		glm::vec3 mouse_input = handle_mouse(window);
+
+		if (had_focus)
+			camera->look(mouse_input * 0.5f);
+
+		had_focus = glfwGetWindowAttrib(window, GLFW_FOCUSED);
 
 		glfwGetFramebufferSize(window, &width, &height);
 		float aspect = (float)(width) / (float)(height);
@@ -224,28 +120,10 @@ void atomic_main(int argc, char *argv[])
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 model = glm::rotate(glm::mat4(), fmodf(((float)(time)) * 45.0f, 360.0f), glm::vec3(0,1,0));
+		std::list<atomic::ModelInstance*>::iterator it;
 
-		program->setUniform("projection", camera->getProjectionMatrix(aspect));
-		program->setUniform("view", camera->getViewMatrix());
-		program->setUniform("model", model);
-
-		program->setUniform("lightPos", glm::vec3(3,3,3));
-		program->setUniform("cameraPos", camera->getPosition());
-
-		program->setUniform("time", time);
-		program->setUniform("sun", glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f)));
-		//glUniform1f(program->uniform("time"), (GLfloat)time);
-		//glBindVertexArray(triangle);
-		glBindVertexArray(box);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture->object());
-		program->setUniform("tex", 0);
-
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDrawArrays(GL_TRIANGLES, 0, 6*2*3);
-		glBindVertexArray(0);
+		for (it = instances.begin(); it != instances.end(); ++it)
+			(*it)->draw(camera, aspect);
 		
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -253,6 +131,9 @@ void atomic_main(int argc, char *argv[])
 		delta = glfwGetTime() - time;
 		
 		// update
+		for (it = instances.begin(); it != instances.end(); ++it)
+			(*it)->setTransform(glm::rotate((*it)->getTransform(), (float)delta * 45.0f, glm::vec3(1, 0, 0)));
+
 		const float moveSpeed = 10.0f;
 
 		float k_w = glfwGetKey(window, GLFW_KEY_W) ?  1.0f : 0.0f;
@@ -283,7 +164,7 @@ void atomic_main(int argc, char *argv[])
 			update_title_accum -= 0.2f;
 			std::stringstream title;
 			title << "Atomic - ";
-			title << (int)floor(1.0f / delta + 0.5);
+			title << delta;
 			glfwSetWindowTitle(window, title.str().c_str());
 		}
 

@@ -43,7 +43,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)thirdparty\glew-1.11.0\include;$(ProjectDir)thirdparty\glfw-3.0.4.bin.WIN32\include;$(ProjectDir)thirdparty\glm;$(ProjectDir)thirdparty\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -61,7 +61,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)thirdparty\glew-1.11.0\include;$(ProjectDir)thirdparty\glfw-3.0.4.bin.WIN32\include;$(ProjectDir)thirdparty\glm;$(ProjectDir)thirdparty\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -78,9 +78,11 @@
   <ItemGroup>
     <ClCompile Include="source\atomic\Bitmap.cpp" />
     <ClCompile Include="source\atomic\Camera.cpp" />
+    <ClCompile Include="source\atomic\Model.cpp" />
     <ClCompile Include="source\atomic\Program.cpp" />
     <ClCompile Include="source\atomic\Shader.cpp" />
     <ClCompile Include="source\atomic\Texture.cpp" />
+    <ClCompile Include="source\lib\tiny_obj_loader.cc" />
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -94,9 +96,11 @@
   <ItemGroup>
     <ClInclude Include="source\atomic\Bitmap.h" />
     <ClInclude Include="source\atomic\Camera.h" />
+    <ClInclude Include="source\atomic\Model.h" />
     <ClInclude Include="source\atomic\Program.h" />
     <ClInclude Include="source\atomic\Shader.h" />
     <ClInclude Include="source\atomic\Texture.h" />
+    <ClInclude Include="source\lib\tiny_obj_loader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

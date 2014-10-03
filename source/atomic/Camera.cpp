@@ -1,26 +1,14 @@
 #include "Camera.h"
+#include <stdio.h>
 
 using namespace atomic;
 
-Camera::Camera()
+Camera::Camera() :
+fieldOfView(75.0f),
+zNear(0.1f), zFar(100.0f)
 {
-	Camera::Camera(glm::vec3(), glm::vec3());
-}
-
-Camera::Camera(glm::vec3 position)
-{
-	Camera::Camera(position, glm::vec3());
-}
-
-Camera::Camera(glm::vec3 position, glm::vec3 rotation)
-{
-	this->position = position;
-	this->rotation = rotation;
-
-	fieldOfView = 45.0f;
-
-	zNear = 0.1f;
-	zFar = 10.0f;
+	this->position = glm::vec3();
+	this->rotation = glm::vec3();
 }
 
 const glm::vec3& Camera::getPosition() const

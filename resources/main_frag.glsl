@@ -2,10 +2,21 @@
 
 uniform mat4 model;
 uniform vec3 cameraPos;
-uniform vec3 lightPos;
 
-uniform sampler2D tex;
-uniform vec3 sun;
+uniform struct Material
+{
+	sampler2D texture;
+	float shininess;
+	vec3 specularColor;
+	vec3 diffuseColor;
+} material;
+
+uniform struct Light
+{
+	vec3 position;
+	vec3 color;
+	float ambient;
+} light;
 
 in vec2 fragTexCoord;
 in vec3 fragNormal;
@@ -15,32 +26,26 @@ out vec4 color;
 
 void main()
 {
-	vec3 lightColor = vec3(1);
-	float lightAmbient = 0.05f;
-
-	vec3 matSpecularColor = vec3(1);
-	float matShininess = 80.0f;
-
 	mat3 normalMatrix = transpose(inverse(mat3(model)));
 	vec3 normal = normalize(normalMatrix * fragNormal);
 
 	vec3 surfacePos = vec3(model * vec4(fragVert, 1));
-	vec4 surfaceColor = texture(tex, fragTexCoord);
-	vec3 surfaceToLight = normalize(lightPos - surfacePos);
+	vec4 surfaceColor = texture(material.texture, fragTexCoord);
+	vec3 surfaceToLight = normalize(light.position - surfacePos);
 	vec3 surfaceToCamera = normalize(cameraPos - surfacePos);
 
 	// ambient
-	vec3 ambient = lightAmbient * surfaceColor.rgb * lightColor;
+	vec3 ambient = surfaceColor.rgb * light.ambient * light.color;
 
 	// diffuse
 	float diffuseCoef = max(0.0, dot(normal, surfaceToLight));
-	vec3 diffuse = diffuseCoef * surfaceColor.rgb * lightColor;
+	vec3 diffuse = diffuseCoef * surfaceColor.rgb * material.diffuseColor * light.color;
 
 	// specular
 	float specularCoef = 0.0f;
 	if (diffuseCoef > 0.0)
-		specularCoef = pow(max(0.0, dot(surfaceToCamera, reflect(-surfaceToLight, normal))), matShininess);
-	vec3 specular = specularCoef * matSpecularColor * lightColor;
+		specularCoef = pow(max(0.0, dot(surfaceToCamera, reflect(-surfaceToLight, normal))), material.shininess);
+	vec3 specular = specularCoef * material.specularColor * light.color;
 
 	// attenuation
 	float attenuation = 1.0f;

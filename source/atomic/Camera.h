@@ -2,7 +2,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <stdio.h>
 
 namespace atomic
 {
@@ -10,9 +9,7 @@ namespace atomic
 	{
 	public:
 		Camera();
-		Camera(glm::vec3 position);
-		Camera(glm::vec3 position, glm::vec3 rotation);
-
+		
 		const glm::vec3& getPosition() const;
 		void setPosition(glm::vec3 position);
 
@@ -33,7 +30,7 @@ namespace atomic
 		glm::vec3 getForwardVector() const;
 		glm::vec3 getRightVector() const;
 		glm::vec3 getUpVector() const;
-
+		
 	private:
 		glm::vec3 position;
 		glm::vec3 rotation;
