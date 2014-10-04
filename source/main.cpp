@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -22,14 +23,15 @@
 void atomic_main(int argc, char *argv[])
 {
 	atomic::ClientReactor *reactor = new atomic::ClientReactor("Atomic", 1280, 720);
-	atomic::ModelAsset *asset = from_bin(reactor->mainShader, "models/lost_empire.bin");
 
+	atomic::ModelAsset *asset = atomic::from_bin("models/lost_empire.bin");
 	atomic::ModelInstance *instance = new atomic::ModelInstance(asset);
 
 	reactor->camera->setPosition(glm::vec3(0, 0, 4));
 	instance->setPosition(glm::vec3(0.0f, -50.0f, 0.0f));
+	//instance->setPosition(glm::vec3(0.0f, -5.0f, 0.0f));
 
-	reactor->addInstance(new atomic::ModelInstance(instance));
+	reactor->addInstance(instance);
 	reactor->run();
 }
 

@@ -41,7 +41,7 @@ glm::mat4 ModelInstance::getModelMatrix() const
 	return matrix;
 }
 
-void ModelInstance::draw(Camera *camera, float aspect)
+void ModelInstance::draw(Camera *camera, float aspect, float time)
 {
 	Program *shaders = asset->shaders;
 
@@ -49,6 +49,7 @@ void ModelInstance::draw(Camera *camera, float aspect)
 	shaders->setUniform("projection", camera->getProjectionMatrix(aspect));
 	shaders->setUniform("view", camera->getViewMatrix());
 	shaders->setUniform("model", getModelMatrix());
+	shaders->setUniform("time", time);
 	//shaders->setUniform("tex", 1);
 
 	shaders->setUniform("material.texture", 1);
@@ -71,10 +72,10 @@ void ModelInstance::draw(Camera *camera, float aspect)
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	shaders->stopUsing();
+	glUseProgram(0);
 }
 
-ModelAsset *create_box_asset(Program *program)
+/*ModelAsset *create_box_asset(Program *program)
 {
 	ModelAsset *box = new ModelAsset();
 
@@ -146,17 +147,7 @@ ModelAsset *create_box_asset(Program *program)
 		1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 		1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
 	};
-
-	// test removing normals and texcoords
-	/*for (int i = 0; i < 6 * 2 * 3; i++)
-	{
-		vertexData[i * 8 + 3] = 0.0f;
-		vertexData[i * 8 + 4] = 0.0f;
-		vertexData[i * 8 + 5] = 0.0f;
-		vertexData[i * 8 + 6] = 0.0f;
-		vertexData[i * 8 + 7] = 0.0f;
-	}*/
-
+	
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
 
 	// [0, 1, 2] -> vert
@@ -173,9 +164,9 @@ ModelAsset *create_box_asset(Program *program)
 
 	glBindVertexArray(0);
 	return box;
-}
+}*/
 
-ModelAsset *from_bin(Program *program, char *filePath)
+ModelAsset *atomic::from_bin(char *filePath)
 {
 	std::ifstream is(filePath, std::ifstream::binary);
 
@@ -193,12 +184,13 @@ ModelAsset *from_bin(Program *program, char *filePath)
 	GLint vertices = floats / 8;
 
 	printf("Loaded %d vertices from \"%s\" in %f seconds\n", vertices, filePath, load_total);
-	//
 	ModelAsset *box = new ModelAsset();
 
 	//atomic::Bitmap bitmap = atomic::Bitmap::fromFile("wooden-crate.jpg");
 	atomic::Bitmap bitmap = atomic::Bitmap::fromFile("textures/lost_empire-RGBA.png");
 	bitmap.flipVertically();
+
+	atomic::Program *program = atomic::Program::fromCommonFiles("shaders/main_vert.glsl", "shaders/main_frag.glsl");
 
 	box->shaders = program;
 	box->drawType = GL_TRIANGLES;

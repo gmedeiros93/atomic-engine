@@ -64,8 +64,8 @@ ClientReactor::ClientReactor(const char *title, int width, int height)
 	camera = new Camera();
 	aspectRatio = (float)width / (float)height;
 
-	mainShader = loadShader("shaders/main_vert.glsl", "shaders/main_frag.glsl");
-	primitiveShader = loadShader("shaders/primitive_vert.glsl", "shaders/primitive_frag.glsl");
+	primitiveShader = Program::fromCommonFiles("shaders/primitive_vert.glsl", "shaders/primitive_frag.glsl");
+	postShader = Program::fromCommonFiles("shaders/post_vert.glsl", "shaders/post_frag.glsl");
 
 	// Create backbuffer for post-processing
 	// Texture
@@ -82,15 +82,15 @@ ClientReactor::ClientReactor(const char *title, int width, int height)
 	// Depth buffer
 	glGenRenderbuffers(1, &rbo_depth);
 	glBindRenderbuffer(GL_RENDERBUFFER, rbo_depth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
+	
 	// Framebuffer
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_texture, 0);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo_depth);
-
+	
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		throw_err(atomic::error, "GL_FRAMEBUFFER is not complete");
 
@@ -110,10 +110,8 @@ ClientReactor::ClientReactor(const char *title, int width, int height)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	// Postproc shader
-	postShader = loadShader("shaders/post_vert.glsl", "shaders/post_frag.glsl");
-
-	attribute_v_coord_postproc = postShader->attrib("v_coord");
-	uniform_fbo_texture = postShader->uniform("fbo_texture");
+	attribute_v_coord_postproc = glGetAttribLocation(postShader->object(), "v_coord");
+	uniform_fbo_texture = glGetAttribLocation(postShader->object(), "fbo_texture");
 }
 
 ClientReactor::~ClientReactor()
@@ -123,21 +121,12 @@ ClientReactor::~ClientReactor()
 	glDeleteTextures(1, &fbo_texture);
 	glDeleteFramebuffers(1, &fbo);
 
-	delete mainShader;
 	delete postShader;
 	delete primitiveShader;
 
 	delete camera;
 
 	glfwDestroyWindow(window);
-}
-
-Program *ClientReactor::loadShader(const char *vertPath, const char *fragPath)
-{
-	std::vector<Shader> shaders;
-	shaders.push_back(Shader::fromFile(vertPath, GL_VERTEX_SHADER));
-	shaders.push_back(Shader::fromFile(fragPath, GL_FRAGMENT_SHADER));
-	return new Program(shaders);
 }
 
 void ClientReactor::addInstance(ModelInstance *instance)
@@ -147,48 +136,47 @@ void ClientReactor::addInstance(ModelInstance *instance)
 
 void ClientReactor::removeInstance(ModelInstance *instance)
 {
-	instances.remove(instance);
+	std::vector<ModelInstance*>::iterator it;
+
+	for (it = instances.begin(); it != instances.end(); it++)
+	{
+		if (*it == instance)
+		{
+			instances.erase(it);
+			return;
+		}
+	}
+
+	fprintf(stderr, "[warn] ClientReactor::removeInstance - instance not part of ModelInstance vector");
 }
 
 void ClientReactor::run()
 {
-	if (shouldRun)
-		throw_err(atomic::error, "ClientReactor is already running");
+	glfwSetWindowShouldClose(window, 0);
 
-	shouldRun = true;
-	hadFocus = false;
-
+	bool hadFocus = false;
 	double delta = 0.0f;
 
-	while (!glfwWindowShouldClose(window) && shouldRun)
+	while (!glfwWindowShouldClose(window))
 	{
 		double time = glfwGetTime();
 		
 		draw();
-		update(delta);
+		update(delta, hadFocus);
 		finishDraw();
 
-		GLenum error = glGetError();
-		if (error != GL_NO_ERROR)
-			printf("GL_ERROR %d\n", error);
-		
 		glfwPollEvents();
 
 		hadFocus = glfwGetWindowAttrib(window, GLFW_FOCUSED) == 1;
 		delta = glfwGetTime() - time;
 	}
 
-	shouldRun = false;
+	glfwSetWindowShouldClose(window, 0);
 }
 
 void ClientReactor::stop()
 {
-	shouldRun = false;
-}
-
-bool ClientReactor::isRunning()
-{
-	return shouldRun;
+	glfwSetWindowShouldClose(window, 1);
 }
 
 void ClientReactor::framebufferSizeChanged(int width, int height)
@@ -212,24 +200,34 @@ void ClientReactor::draw()
 
 	// Draw world into fbo
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPointSize(8.0);
+	//glLineWidth(4.0);
+	//glLineStipple(4, 2);
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	std::list<ModelInstance*>::iterator it;
+	std::vector<ModelInstance*>::iterator it;
 
 	for (it = instances.begin(); it != instances.end(); ++it)
-		(*it)->draw(camera, aspectRatio);
+		(*it)->draw(camera, aspectRatio, (float)glfwGetTime());
 
 	drawGizmo();
+	//return;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// Draw fbo to screen with postproc
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glUseProgram(postShader->object());
 	postShader->use();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, fbo_texture);
-	postShader->setUniform("fbo_texture", 0);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, fbo_texture);
+	//postShader->setUniform("fbo_texture", 0);
 	//glUniform1i(uniform_fbo_texture, 0);
+
+	postShader->assignTexture("fbo_texture", 0, fbo_texture);
+	postShader->assignTexture("rbo_depth", 1, rbo_depth, GL_RENDERBUFFER);
 	
 	postShader->setUniform("time", glfwGetTime());
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_fbo_vertices);
@@ -252,7 +250,7 @@ void ClientReactor::finishDraw()
 	glfwSwapBuffers(window);
 }
 
-void ClientReactor::update(double delta)
+void ClientReactor::update(double delta, bool hadFocus)
 {
 	const float moveSpeed = 10.0f;
 	const float lookSpeed = 0.5f;
@@ -271,8 +269,8 @@ void ClientReactor::update(double delta)
 
 	glfwSetCursorPos(window, center_x, center_y);
 
-	if (shouldUseInput())
-		camera->look(glm::vec3(yaw, pitch, 0.0f) * lookSpeed);
+	if (hadFocus)
+		camera->look(glm::vec3(glm::radians(yaw), glm::radians(pitch), 0.0f) * lookSpeed);
 	
 	float k_w = glfwGetKey(window, GLFW_KEY_W) ? 1.0f : 0.0f;
 	float k_s = glfwGetKey(window, GLFW_KEY_S) ? -1.0f : 0.0f;

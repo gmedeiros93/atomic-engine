@@ -11,32 +11,9 @@ namespace atomic
 {
 	class ClientReactor
 	{
-		GLFWwindow *window;
-		Camera *camera;
-		std::list<ModelInstance*> instances;
-
-		bool shouldRun = false;
-		bool hadFocus = false;
-		float aspectRatio = 1.0f;
-
-		Program *postShader;
-		Program *primitiveShader;
-
-		Program *loadShader(const char *vertPath, const char *fragPath);
-
-		void draw();
-		void finishDraw();
-		void update(double delta);
-
-		GLuint gizmo = 0;
-		void drawGizmo();
-
-		GLuint fbo, fbo_texture, rbo_depth;
-		GLuint vbo_fbo_vertices;
-		GLuint attribute_v_coord_postproc, uniform_fbo_texture;
-
 	public:
-		Program *mainShader;
+		Camera *camera;
+
 		ClientReactor(const char *title, int width, int height);
 		~ClientReactor();
 
@@ -45,9 +22,27 @@ namespace atomic
 
 		void run();
 		void stop();
-		bool isRunning();
-		bool shouldUseInput() { return hadFocus; };
-
+		
 		void framebufferSizeChanged(int width, int height);
+
+	private:
+		GLFWwindow *window;
+		std::vector<ModelInstance*> instances;
+
+		float aspectRatio = 1.0f;
+
+		Program *postShader;
+		Program *primitiveShader;
+
+		GLuint fbo, fbo_texture, rbo_depth;
+		GLuint vbo_fbo_vertices;
+		GLuint attribute_v_coord_postproc, uniform_fbo_texture;
+
+		void draw();
+		void finishDraw();
+		void update(double delta, bool hadFocus);
+
+		GLuint gizmo = 0;
+		void drawGizmo();
 	};
 };

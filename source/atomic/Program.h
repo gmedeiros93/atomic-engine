@@ -1,56 +1,37 @@
 #pragma once
 
-#include "Shader.h"
 #include <vector>
 #include <glm/glm.hpp>
+#include "Shader.h"
 
-namespace atomic {
-
-    /**
-     Represents an OpenGL program made by linking shaders.
-     */
-    class Program { 
+namespace atomic
+{
+    class Program
+	{ 
     public:
-        /**
-         Creates a program by linking a list of tdogl::Shader objects
-         
-         @param shaders  The shaders to link together to make the program
-         
-         @throws std::exception if an error occurs.
-         
-         @see tdogl::Shader
-         */
+		static Program *fromCommonFiles(const char *vertexShaderPath, const char *fragmentShaderPath);
+
         Program(const std::vector<Shader>& shaders);
         ~Program();
-        
-        
-        /**
-         @result The program's object ID, as returned from glCreateProgram
-         */
+
         GLuint object() const;
-
         void use() const;
-
         bool isInUse() const;
+        //void stopUsing() const;
 
-        void stopUsing() const;
-        
-        /**
-         @result The attribute index for the given name, as returned from glGetAttribLocation.
-         */
+		void assignTexture(const char *uniform, GLuint slot, GLuint texture, GLenum type = GL_TEXTURE_2D)
+		{
+			if (!isInUse())
+				use();
+
+			glActiveTexture(GL_TEXTURE0 + slot);
+			glBindTexture(type, texture);
+			glUniform1i(glGetUniformLocation(_object, uniform), slot);
+		};
+
         GLint attrib(const GLchar* attribName) const;
-        
-        
-        /**
-         @result The uniform index for the given name, as returned from glGetUniformLocation.
-         */
         GLint uniform(const GLchar* uniformName) const;
 
-        /**
-         Setters for attribute and uniform variables.
-
-         These are convenience methods for the glVertexAttrib* and glUniform* functions.
-         */
 #define _TDOGL_PROGRAM_ATTRIB_N_UNIFORM_SETTERS(OGL_TYPE) \
         void setAttrib(const GLchar* attribName, OGL_TYPE v0); \
         void setAttrib(const GLchar* attribName, OGL_TYPE v0, OGL_TYPE v1); \
@@ -89,10 +70,8 @@ namespace atomic {
         
     private:
         GLuint _object;
-        
-        //copying disabled
+
         Program(const Program&);
         const Program& operator=(const Program&);
     };
-
-}
+};

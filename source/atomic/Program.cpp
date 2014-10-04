@@ -1,37 +1,34 @@
-#include "Program.h"
-#include <stdexcept>
 #include <glm/gtc/type_ptr.hpp>
+#include "../exceptions.h"
+#include "Program.h"
 
 using namespace atomic;
 
-Program::Program(const std::vector<Shader>& shaders) :
-    _object(0)
+Program::Program(const std::vector<Shader>& shaders) : _object(0)
 {
-    if(shaders.size() <= 0)
-        throw std::runtime_error("No shaders were provided to create the program");
-    
-    //create the program object
+    if (shaders.empty())
+        throw_err(atomic::error, "No shaders were provided to create the program");
+
     _object = glCreateProgram();
-    if(_object == 0)
+
+    if (_object == 0)
         throw std::runtime_error("glCreateProgram failed");
     
-    //attach all the shaders
-    for(unsigned i = 0; i < shaders.size(); ++i)
+    for (unsigned i = 0; i < shaders.size(); i++)
         glAttachShader(_object, shaders[i].object());
-    
-    //link the shaders together
+
     glLinkProgram(_object);
-    
-    //detach all the shaders
+
     for(unsigned i = 0; i < shaders.size(); ++i)
         glDetachShader(_object, shaders[i].object());
-    
-    //throw exception if linking failed
+
     GLint status;
     glGetProgramiv(_object, GL_LINK_STATUS, &status);
-    if (status == GL_FALSE) {
+
+    if (status == GL_FALSE)
+	{
         std::string msg("Program linking failure: ");
-        
+
         GLint infoLogLength;
         glGetProgramiv(_object, GL_INFO_LOG_LENGTH, &infoLogLength);
         char* strInfoLog = new char[infoLogLength + 1];
@@ -39,44 +36,63 @@ Program::Program(const std::vector<Shader>& shaders) :
         msg += strInfoLog;
         delete[] strInfoLog;
         
-        glDeleteProgram(_object); _object = 0;
-        throw std::runtime_error(msg);
+        glDeleteProgram(_object);
+		_object = 0;
+
+        throw_err(atomic::error, msg.c_str());
     }
 }
 
-Program::~Program() {
-    //might be 0 if ctor fails by throwing exception
-    if(_object != 0) glDeleteProgram(_object);
+Program::~Program()
+{
+    if (_object != 0)
+		glDeleteProgram(_object);
 }
 
-GLuint Program::object() const {
+Program *Program::fromCommonFiles(const char *vertexShaderPath, const char *fragmentShaderPath)
+{
+	std::vector<Shader> shaders;
+
+	shaders.push_back(Shader::fromFile(vertexShaderPath, GL_VERTEX_SHADER));
+	shaders.push_back(Shader::fromFile(fragmentShaderPath, GL_FRAGMENT_SHADER));
+
+	return new Program(shaders);
+}
+
+GLuint Program::object() const
+{
     return _object;
 }
 
-void Program::use() const {
+void Program::use() const
+{
     glUseProgram(_object);
 }
 
-bool Program::isInUse() const {
+bool Program::isInUse() const
+{
     GLint currentProgram = 0;
     glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
     return (currentProgram == (GLint)_object);
 }
 
-void Program::stopUsing() const {
-    assert(isInUse());
-    glUseProgram(0);
-}
+//void Program::stopUsing() const
+//{
+//    assert(isInUse());
+//    glUseProgram(0);
+//}
 
-GLint Program::attrib(const GLchar* attribName) const {
-    if(!attribName)
+GLint Program::attrib(const GLchar* attribName) const
+{
+    if (!attribName)
         throw std::runtime_error("attribName was NULL");
     
     return glGetAttribLocation(_object, attribName);
 }
 
-GLint Program::uniform(const GLchar* uniformName) const {
-    if(!uniformName)
+GLint Program::uniform(const GLchar* uniformName) const
+{
+    if (!uniformName)
         throw std::runtime_error("uniformName was NULL");
     
     return glGetUniformLocation(_object, uniformName);

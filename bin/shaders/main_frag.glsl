@@ -34,8 +34,7 @@ void main()
 	vec4 surfaceColor = texture(material.texture, fragTexCoord);
 	vec3 surfaceToLight = normalize(light.position - surfacePos);
 	vec3 surfaceToCamera = normalize(cameraPos - surfacePos);
-	//color = vec4(surfaceToCamera, 1); return;
-
+	
 	// ambient
 	vec3 ambient = surfaceColor.rgb * light.ambient * light.color;
 

@@ -9,6 +9,28 @@
 
 namespace atomic
 {
+	struct Material
+	{
+		bool useDiffuseMap;
+		bool useSpecularMap;
+
+		Texture *diffuseMap;
+		Texture *specularMap;
+
+		glm::vec4 diffuseColor;
+		glm::vec3 specularColor;
+
+		float shininess;
+	};
+
+	struct Light
+	{
+		glm::vec3 position;
+		glm::vec3 color;
+
+		float attenuation;
+	};
+
 	class ModelAsset
 	{
 	public:
@@ -41,7 +63,7 @@ namespace atomic
 
 		glm::mat4 getModelMatrix() const;
 
-		void draw(Camera *camera, float aspect);
+		void draw(Camera *camera, float aspect, float time);
 
 	private:
 		ModelAsset* asset;
@@ -50,7 +72,8 @@ namespace atomic
 		glm::mat4 rotation;
 		glm::vec3 scale;		
 	};
+
+	atomic::ModelAsset *from_bin(char *filePath);
 };
 
-atomic::ModelAsset *create_box_asset(atomic::Program *shaders);
-atomic::ModelAsset *from_bin(atomic::Program *shaders, char *filePath);
+//atomic::ModelAsset *create_box_asset(atomic::Program *shaders);

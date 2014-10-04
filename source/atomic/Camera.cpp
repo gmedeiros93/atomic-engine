@@ -83,8 +83,8 @@ glm::mat4 Camera::getViewMatrix() const
 
 glm::mat4 Camera::getProjectionMatrix(float aspectRatio) const
 {
-	//return glm::perspective(fieldOfView, aspectRatio, zNear, zFar);
-	return glm::infinitePerspective(fieldOfView, aspectRatio, zNear);
+	return glm::perspective(glm::radians(fieldOfView), aspectRatio, zNear, zFar);
+	//return glm::infinitePerspective(fieldOfView, aspectRatio, zNear);
 }
 
 glm::vec3 Camera::getForwardVector() const
@@ -117,8 +117,8 @@ float clamp(float value, float min, float max)
 
 void Camera::clampRotation()
 {
-	float full = 360.0f;
-	float gimbal = 85.0f;
+	float full = glm::radians(360.0f);
+	float gimbal = glm::radians(85.0f);
 
 	rotation[0] = fmodf(rotation[0], full);
 	rotation[1] = clamp(rotation[1], -gimbal, gimbal);
