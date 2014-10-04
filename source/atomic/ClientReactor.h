@@ -34,10 +34,9 @@ namespace atomic
 		Program *postShader;
 		Program *primitiveShader;
 
-		GLuint fbo, fbo_texture, rbo_depth;
-		GLuint vbo_fbo_vertices;
-		GLuint attribute_v_coord_postproc, uniform_fbo_texture;
-
+		GLuint fbo, fbo_color, fbo_depth;
+		GLuint screen_vbo;
+		
 		void draw();
 		void finishDraw();
 		void update(double delta, bool hadFocus);

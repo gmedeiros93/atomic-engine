@@ -70,8 +70,8 @@ ClientReactor::ClientReactor(const char *title, int width, int height)
 	// Create backbuffer for post-processing
 	// Texture
 	glActiveTexture(GL_TEXTURE0);
-	glGenTextures(1, &fbo_texture);
-	glBindTexture(GL_TEXTURE_2D, fbo_texture);
+	glGenTextures(1, &fbo_color);
+	glBindTexture(GL_TEXTURE_2D, fbo_color);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -80,16 +80,22 @@ ClientReactor::ClientReactor(const char *title, int width, int height)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	
 	// Depth buffer
-	glGenRenderbuffers(1, &rbo_depth);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo_depth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glGenTextures(1, &fbo_depth);
+	glBindTexture(GL_TEXTURE_2D, fbo_depth);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	
 	// Framebuffer
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_texture, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo_depth);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo_color, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, fbo_depth, 0);
 	
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		throw_err(atomic::error, "GL_FRAMEBUFFER is not complete");
@@ -104,21 +110,17 @@ ClientReactor::ClientReactor(const char *title, int width, int height)
 		 1.0,  1.0,
 	};
 
-	glGenBuffers(1, &vbo_fbo_vertices);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_fbo_vertices);
+	glGenBuffers(1, &screen_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, screen_vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(fbo_vertices), fbo_vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// Postproc shader
-	attribute_v_coord_postproc = glGetAttribLocation(postShader->object(), "v_coord");
-	uniform_fbo_texture = glGetAttribLocation(postShader->object(), "fbo_texture");
 }
 
 ClientReactor::~ClientReactor()
 {
-	glDeleteBuffers(1, &vbo_fbo_vertices);
-	glDeleteRenderbuffers(1, &rbo_depth);
-	glDeleteTextures(1, &fbo_texture);
+	glDeleteBuffers(1, &screen_vbo);
+	glDeleteTextures(1, &fbo_depth);
+	glDeleteTextures(1, &fbo_color);
 	glDeleteFramebuffers(1, &fbo);
 
 	delete postShader;
@@ -183,13 +185,17 @@ void ClientReactor::framebufferSizeChanged(int width, int height)
 {
 	aspectRatio = (float)width / (float)height;
 
-	glBindTexture(GL_TEXTURE_2D, fbo_texture);
+	glBindTexture(GL_TEXTURE_2D, fbo_color);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo_depth);
+	glBindTexture(GL_TEXTURE_2D, fbo_depth);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	/*glBindRenderbuffer(GL_RENDERBUFFER, fbo_depth);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);*/
 
 	glViewport(0, 0, width, height);
 }
@@ -200,11 +206,6 @@ void ClientReactor::draw()
 
 	// Draw world into fbo
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glPointSize(8.0);
-	//glLineWidth(4.0);
-	//glLineStipple(4, 2);
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	std::vector<ModelInstance*>::iterator it;
@@ -212,37 +213,29 @@ void ClientReactor::draw()
 	for (it = instances.begin(); it != instances.end(); ++it)
 		(*it)->draw(camera, aspectRatio, (float)glfwGetTime());
 
-	drawGizmo();
-	//return;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// Draw fbo to screen with postproc
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//glUseProgram(postShader->object());
 	postShader->use();
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, fbo_texture);
-	//postShader->setUniform("fbo_texture", 0);
-	//glUniform1i(uniform_fbo_texture, 0);
 
-	postShader->assignTexture("fbo_texture", 0, fbo_texture);
-	postShader->assignTexture("rbo_depth", 1, rbo_depth, GL_RENDERBUFFER);
+	postShader->assignTexture("colorTex", 0, fbo_color);
+	postShader->assignTexture("depthTex", 1, fbo_depth);
 	
 	postShader->setUniform("time", glfwGetTime());
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_fbo_vertices);
+	glBindBuffer(GL_ARRAY_BUFFER, screen_vbo);
 
-	glEnableVertexAttribArray(attribute_v_coord_postproc);
-	glVertexAttribPointer(attribute_v_coord_postproc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glDisableVertexAttribArray(attribute_v_coord_postproc);
-	//
+	glDisableVertexAttribArray(0);
+	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glUseProgram(0);
 
 	// Extra
-	//drawGizmo();
+	drawGizmo();
 }
 
 void ClientReactor::finishDraw()

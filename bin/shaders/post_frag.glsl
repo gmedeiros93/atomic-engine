@@ -1,20 +1,27 @@
 #version 150
 
-uniform sampler2D fbo_texture;
-uniform sampler2D rbo_depth;
-uniform float time;
-varying vec2 f_texcoord;
+uniform sampler2D colorTex;
+uniform sampler2D depthTex;
+varying vec2 texCoord;
 
-const float sampleDist = 1.0;
-const float sampleStrength = 2.2;
+//const float sampleDist = 1.0;
+//const float sampleStrength = 2.2;
+
+// replace with uniform
+const float zNear = 0.1f;
+const float zFar = 100.0f;
 
 void main()
 {
-	vec2 uv = f_texcoord;
-	//uv.x += sin(uv.y * 4 * 2 * 3.14159 + time) / 100;
-	//uv.y += cos(uv.x * 4 * 2 * 3.14159 + time) / 100;
+	vec4 color = texture(colorTex, texCoord);
+	float depth = texture(depthTex, texCoord).x;
 
-	float samples[10];
+	// Convert from exponential depth to scalar depth
+	depth = (2 * zNear) / (zFar + zNear - depth * (zFar - zNear));
+
+	gl_FragColor = color;
+
+	/*float samples[10];
 	samples[0] = -0.08;
 	samples[1] = -0.05;
 	samples[2] = -0.03;
@@ -40,9 +47,5 @@ void main()
 	float t = dist * sampleStrength;
 	t = clamp(t, 0.0, 1.0);
 
-	gl_FragColor = mix(color, sum, t);
-	//vec2 texcoord = f_texcoord;
-	//texcoord.x += sin(texcoord.y * 4 * 2 * 3.14159 + time) / 100;
-	//texcoord.y += cos(texcoord.y * 4 * 2 * 3.14159 + time) / 100;
-	//gl_FragColor = texture2D(fbo_texture, texcoord);
+	gl_FragColor = mix(color, sum, t);*/
 }
