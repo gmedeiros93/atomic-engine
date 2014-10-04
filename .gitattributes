@@ -1,5 +1,15 @@
 # Auto detect text files and perform LF normalization
-* text eol=lf
+# * text eol=lf
+# pls never do anything with linefeeds ever no matter what
+# * text
+# or s- wait what
+* text auto
+
+# stahp
+*.dll binary
+*.png binary
+*.jpg binary
+*.bin binary
 
 # Custom for Visual Studio
 *.cs     diff=csharp
