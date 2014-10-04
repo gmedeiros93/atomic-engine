@@ -1,5 +1,7 @@
-#include "Model.h"
 #include <fstream>
+#include "Model.h"
+#include <GLFW/glfw3.h>
+#include "../exceptions.h"
 
 using namespace atomic;
 
@@ -47,19 +49,20 @@ void ModelInstance::draw(Camera *camera, float aspect)
 	shaders->setUniform("projection", camera->getProjectionMatrix(aspect));
 	shaders->setUniform("view", camera->getViewMatrix());
 	shaders->setUniform("model", getModelMatrix());
-	shaders->setUniform("tex", 0);
+	//shaders->setUniform("tex", 1);
 
-	shaders->setUniform("material.texture", 0);
+	shaders->setUniform("material.texture", 1);
 	shaders->setUniform("material.shininess", asset->shininess);
 	shaders->setUniform("material.specularColor", asset->specularColor);
 	shaders->setUniform("material.diffuseColor", asset->diffuseColor);
 	//shaders->setUniform("light.position", glm::vec3(0,0,0));
 	shaders->setUniform("light.position", camera->getPosition());
 	shaders->setUniform("light.color", glm::vec3(1,1,1));
-	shaders->setUniform("light.ambient", 0.15f);
+	shaders->setUniform("light.ambient", 0.000f);
+	shaders->setUniform("light.attenuation", 0.2f);
 	shaders->setUniform("cameraPos", camera->getPosition());
 
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, asset->texture->object());
 
 	glBindVertexArray(asset->vao);
@@ -75,7 +78,7 @@ ModelAsset *create_box_asset(Program *program)
 {
 	ModelAsset *box = new ModelAsset();
 
-	atomic::Bitmap bitmap = atomic::Bitmap::fromFile("wooden-crate.jpg");
+	atomic::Bitmap bitmap = atomic::Bitmap::fromFile("textures/wooden-crate.jpg");
 	bitmap.flipVertically();
 	
 	box->shaders = program;
@@ -172,8 +175,6 @@ ModelAsset *create_box_asset(Program *program)
 	return box;
 }
 
-#include "GLFW/glfw3.h"
-
 ModelAsset *from_bin(Program *program, char *filePath)
 {
 	std::ifstream is(filePath, std::ifstream::binary);
@@ -196,7 +197,7 @@ ModelAsset *from_bin(Program *program, char *filePath)
 	ModelAsset *box = new ModelAsset();
 
 	//atomic::Bitmap bitmap = atomic::Bitmap::fromFile("wooden-crate.jpg");
-	atomic::Bitmap bitmap = atomic::Bitmap::fromFile("lost_empire-RGBA.png");
+	atomic::Bitmap bitmap = atomic::Bitmap::fromFile("textures/lost_empire-RGBA.png");
 	bitmap.flipVertically();
 
 	box->shaders = program;
@@ -204,7 +205,7 @@ ModelAsset *from_bin(Program *program, char *filePath)
 	box->drawStart = 0;
 	box->drawCount = vertices;
 	box->texture = new Texture(bitmap);
-	box->shininess = 80.0f;
+	box->shininess = 120.0f;
 	box->specularColor = glm::vec3(1, 1, 1);
 	box->diffuseColor = glm::vec3(1, 1, 1);
 

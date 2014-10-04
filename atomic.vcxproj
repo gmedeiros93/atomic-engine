@@ -38,7 +38,18 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>$(SolutionDir)obj\</IntDir>
+    <TargetName>$(ProjectName)</TargetName>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>$(SolutionDir)obj\</IntDir>
+    <TargetName>$(ProjectName)_debug</TargetName>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -52,7 +63,7 @@
       <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)resources\*" "$(OutDir)\" &amp; copy "$(ProjectDir)shared_dll\*" "$(OutDir)\"</Command>
+      <Command>xcopy /s /e /y "$(ProjectDir)resources" "$(OutDir)" &amp;&amp; xcopy /s /e /y "$(ProjectDir)shared_dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -72,7 +83,7 @@
       <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)resources\*" "$(OutDir)\" &amp; copy "$(ProjectDir)shared_dll\*" "$(OutDir)\"</Command>
+      <Command>xcopy /s /e /y "$(ProjectDir)resources" "$(OutDir)" &amp;&amp; xcopy /s /e /y "$(ProjectDir)shared_dll" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -83,18 +94,7 @@
     <ClCompile Include="source\atomic\ClientReactor.cpp" />
     <ClCompile Include="source\atomic\Shader.cpp" />
     <ClCompile Include="source\atomic\Texture.cpp" />
-    <ClCompile Include="source\atomic\Window.cpp" />
     <ClCompile Include="source\main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\main_frag.glsl" />
-    <None Include="resources\main_vert.glsl" />
-    <None Include="resources\prim_frag.glsl" />
-    <None Include="resources\prim_vert.glsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="resources\hazard.png" />
-    <Image Include="resources\wooden-crate.jpg" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\atomic\Bitmap.h" />
@@ -104,7 +104,15 @@
     <ClInclude Include="source\atomic\ClientReactor.h" />
     <ClInclude Include="source\atomic\Shader.h" />
     <ClInclude Include="source\atomic\Texture.h" />
-    <ClInclude Include="source\atomic\Window.h" />
+    <ClInclude Include="source\exceptions.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\shaders\main_frag.glsl" />
+    <None Include="bin\shaders\main_vert.glsl" />
+    <None Include="bin\shaders\post_frag.glsl" />
+    <None Include="bin\shaders\post_vert.glsl" />
+    <None Include="bin\shaders\primitive_frag.glsl" />
+    <None Include="bin\shaders\primitive_vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

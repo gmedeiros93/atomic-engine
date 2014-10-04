@@ -1,14 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="resources">
-      <UniqueIdentifier>{593e0d41-9466-4b3b-ad5d-998d326748b6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="source">
       <UniqueIdentifier>{5ee1e0f5-a06c-4f87-9779-9e05dd1a5b72}</UniqueIdentifier>
     </Filter>
     <Filter Include="source\atomic">
       <UniqueIdentifier>{ce1876b2-208b-4b52-ae08-5fa6156f4a00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{1f567984-9263-4721-a1c6-7f3d0131cca3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\shaders">
+      <UniqueIdentifier>{0166b21d-7c5c-4b79-a221-d3033b9d98d6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -33,34 +36,9 @@
     <ClCompile Include="source\atomic\Model.cpp">
       <Filter>source\atomic</Filter>
     </ClCompile>
-    <ClCompile Include="source\atomic\Window.cpp">
-      <Filter>source\atomic</Filter>
-    </ClCompile>
     <ClCompile Include="source\atomic\ClientReactor.cpp">
       <Filter>source\atomic</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\main_frag.glsl">
-      <Filter>resources</Filter>
-    </None>
-    <None Include="resources\main_vert.glsl">
-      <Filter>resources</Filter>
-    </None>
-    <None Include="resources\prim_vert.glsl">
-      <Filter>resources</Filter>
-    </None>
-    <None Include="resources\prim_frag.glsl">
-      <Filter>resources</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="resources\hazard.png">
-      <Filter>resources</Filter>
-    </Image>
-    <Image Include="resources\wooden-crate.jpg">
-      <Filter>resources</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\atomic\Bitmap.h">
@@ -81,11 +59,31 @@
     <ClInclude Include="source\atomic\Model.h">
       <Filter>source\atomic</Filter>
     </ClInclude>
-    <ClInclude Include="source\atomic\Window.h">
-      <Filter>source\atomic</Filter>
-    </ClInclude>
     <ClInclude Include="source\atomic\ClientReactor.h">
       <Filter>source\atomic</Filter>
     </ClInclude>
+    <ClInclude Include="source\exceptions.h">
+      <Filter>source</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\shaders\post_frag.glsl">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="bin\shaders\post_vert.glsl">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="bin\shaders\primitive_frag.glsl">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="bin\shaders\primitive_vert.glsl">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="bin\shaders\main_frag.glsl">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="bin\shaders\main_vert.glsl">
+      <Filter>resources\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
