@@ -39,6 +39,9 @@
     <ClCompile Include="source\atomic\ClientReactor.cpp">
       <Filter>source\atomic</Filter>
     </ClCompile>
+    <ClCompile Include="source\atomic\Light.cpp">
+      <Filter>source\atomic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\atomic\Bitmap.h">
@@ -64,6 +67,9 @@
     </ClInclude>
     <ClInclude Include="source\exceptions.h">
       <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atomic\Light.h">
+      <Filter>source\atomic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

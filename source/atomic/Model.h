@@ -6,6 +6,7 @@
 #include "Program.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "Light.h"
 
 namespace atomic
 {
@@ -21,14 +22,6 @@ namespace atomic
 		glm::vec3 specularColor;
 
 		float shininess;
-	};
-
-	struct Light
-	{
-		glm::vec3 position;
-		glm::vec3 color;
-
-		float attenuation;
 	};
 
 	class ModelAsset

@@ -49,20 +49,52 @@ void ModelInstance::draw(Camera *camera, float aspect, float time)
 	shaders->setUniform("projection", camera->getProjectionMatrix(aspect));
 	shaders->setUniform("view", camera->getViewMatrix());
 	shaders->setUniform("model", getModelMatrix());
-	shaders->setUniform("time", time);
-	//shaders->setUniform("tex", 1);
-
+	
 	shaders->setUniform("material.texture", 1);
 	shaders->setUniform("material.shininess", asset->shininess);
 	shaders->setUniform("material.specularColor", asset->specularColor);
 	shaders->setUniform("material.diffuseColor", asset->diffuseColor);
 	//shaders->setUniform("light.position", glm::vec3(0,0,0));
-	shaders->setUniform("light.position", camera->getPosition());
-	shaders->setUniform("light.color", glm::vec3(1,1,1));
-	shaders->setUniform("light.ambient", 0.000f);
-	shaders->setUniform("light.attenuation", 0.2f);
+	//shaders->setUniform("light.position", camera->getPosition());
+	//shaders->setUniform("light.color", glm::vec3(1,1,1));
+	//shaders->setUniform("light.ambient", 0.000f);
+	//shaders->setUniform("light.attenuation", 0.2f);
+	/*shaders->setUniform("totalDirLights", 0);
+	shaders->setUniform("totalPointLights", 1);
+	shaders->setUniform("totalSpotLights", 0);
+	shaders->setUniform("pointLights[0].position", camera->getPosition());
+	shaders->setUniform("pointLights[0].diffuse", glm::vec3(1.0f));
+	shaders->setUniform("pointLights[0].specular", glm::vec3(1.0f));
+	shaders->setUniform("pointLights[0].linearFalloff", 0.35);
+	shaders->setUniform("pointLights[0].quadraticFalloff", 0.44);*/
 	shaders->setUniform("cameraPos", camera->getPosition());
 
+	std::vector<Light> lights;
+
+	Light playerLight;
+	playerLight.type = POINT_LIGHT;
+	playerLight.vec = camera->getPosition();
+	playerLight.diffuse = glm::vec3(1.0f);
+	playerLight.specular = glm::vec3(1.0f);
+	playerLight.linear = 0.35f;
+	playerLight.quadratic = 0.44f;
+
+	lights.push_back(playerLight);
+
+	shaders->setUniform("totalLights", (int)lights.size());
+
+	for (size_t i = 0; i < lights.size(); i++)
+	{
+		shaders->setUniform(lightUniformName(i, "type"), lights[i].type);
+		shaders->setUniform(lightUniformName(i, "vec"), lights[i].vec);
+		shaders->setUniform(lightUniformName(i, "ambient"), lights[i].ambient);
+		shaders->setUniform(lightUniformName(i, "diffuse"), lights[i].diffuse);
+		shaders->setUniform(lightUniformName(i, "specular"), lights[i].specular);
+		shaders->setUniform(lightUniformName(i, "diffuse"), lights[i].diffuse);
+		shaders->setUniform(lightUniformName(i, "linear"), lights[i].linear);
+		shaders->setUniform(lightUniformName(i, "quadratic"), lights[i].quadratic);
+	}
+	
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, asset->texture->object());
 
