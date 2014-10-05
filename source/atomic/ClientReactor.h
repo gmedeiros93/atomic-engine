@@ -3,6 +3,8 @@
 #include <list>
 #include "Program.h"
 #include "Model.h"
+#include "text.h"
+#include "../exceptions.h"
 
 struct GLFWwindow;
 class Camera;
@@ -26,6 +28,8 @@ namespace atomic
 		void framebufferSizeChanged(int width, int height);
 
 	private:
+		FontFace *font;
+
 		GLFWwindow *window;
 		std::vector<ModelInstance*> instances;
 
@@ -37,7 +41,8 @@ namespace atomic
 		GLuint fbo, fbo_color, fbo_depth;
 		GLuint screen_vbo;
 		
-		void draw();
+		void draw(float delta);
+		void drawDebugText(const char *prefix, double value, int offset);
 		void finishDraw();
 		void update(double delta, bool hadFocus);
 

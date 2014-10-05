@@ -1,7 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "../exceptions.h"
 #include "ClientReactor.h"
 #include "Camera.h"
 #include "Shader.h"
@@ -114,6 +113,9 @@ ClientReactor::ClientReactor(const char *title, int width, int height)
 	glBindBuffer(GL_ARRAY_BUFFER, screen_vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(fbo_vertices), fbo_vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// test
+	font = new FontFace("test.ttf", 0);
 }
 
 ClientReactor::~ClientReactor()
@@ -163,7 +165,7 @@ void ClientReactor::run()
 	{
 		double time = glfwGetTime();
 		
-		draw();
+		draw(delta);
 		update(delta, hadFocus);
 		finishDraw();
 
@@ -200,13 +202,17 @@ void ClientReactor::framebufferSizeChanged(int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-void ClientReactor::draw()
+void ClientReactor::draw(float delta)
 {
+	double start_draw = glfwGetTime();
 	glfwMakeContextCurrent(window);
 
 	// Draw world into fbo
+	double start_scene = glfwGetTime();
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	double start_clear = glfwGetTime();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	double time_clear = glfwGetTime() - start_clear;
 
 	std::vector<ModelInstance*>::iterator it;
 
@@ -214,9 +220,13 @@ void ClientReactor::draw()
 		(*it)->draw(camera, aspectRatio, (float)glfwGetTime());
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	double time_scene = glfwGetTime() - start_scene;
 
 	// Draw fbo to screen with postproc
+	start_clear = glfwGetTime();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	time_clear += glfwGetTime() - start_clear;
+	double start_post = glfwGetTime();
 	postShader->use();
 
 	postShader->assignTexture("colorTex", 0, fbo_color);
@@ -233,9 +243,40 @@ void ClientReactor::draw()
 	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glUseProgram(0);
+	double time_post = glfwGetTime() - start_post;
 
 	// Extra
 	drawGizmo();
+
+	//font->setSize(0, 16);
+	//font->render("hello world", -1 + sx * 8, 1 - 50 * sy, sx, sy);
+	//font->render("hello world", 0.0f, 0.0f, sx, sy, camera->getProjectionMatrix(aspectRatio) * camera->getViewMatrix());
+	//font->render(str, -1 + sx * 8, 1 - 50 * sy, sx, sy, glm::mat4());
+
+	double start_text = glfwGetTime();
+	drawDebugText("mspf  ", delta, 0);
+	drawDebugText("clear ", time_clear, 24);
+	drawDebugText("scene ", time_scene, 36);
+	drawDebugText("post  ", time_post, 48);
+	double time_text = glfwGetTime() - start_text;
+	drawDebugText("^text ", time_text, 60);
+}
+
+void ClientReactor::drawDebugText(const char *prefix, double value, int offset)
+{
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
+
+	float sx = 2.0f / width;
+	float sy = 2.0f / height;
+
+	std::stringstream fps;
+	fps << prefix;
+	fps << value;
+	const char *str = strdup(fps.str().c_str());
+
+	font->setSize(0, 10);
+	font->render(str, -1 + sx * 8, 1 - 12 * sy - offset * sy, sx, sy, glm::mat4());
 }
 
 void ClientReactor::finishDraw()

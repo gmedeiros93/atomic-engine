@@ -42,6 +42,9 @@
     <ClCompile Include="source\atomic\Light.cpp">
       <Filter>source\atomic</Filter>
     </ClCompile>
+    <ClCompile Include="source\atomic\text.cpp">
+      <Filter>source\atomic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\atomic\Bitmap.h">
@@ -71,6 +74,9 @@
     <ClInclude Include="source\atomic\Light.h">
       <Filter>source\atomic</Filter>
     </ClInclude>
+    <ClInclude Include="source\atomic\text.h">
+      <Filter>source\atomic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="bin\shaders\post_frag.glsl">
@@ -89,6 +95,12 @@
       <Filter>resources\shaders</Filter>
     </None>
     <None Include="bin\shaders\main_vert.glsl">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="bin\shaders\text_vert.glsl">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="bin\shaders\text_frag.glsl">
       <Filter>resources\shaders</Filter>
     </None>
   </ItemGroup>

@@ -55,12 +55,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)thirdparty\glew-1.11.0\include;$(ProjectDir)thirdparty\glfw-3.0.4.bin.WIN32\include;$(ProjectDir)thirdparty\glm;$(ProjectDir)thirdparty\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)thirdparty\glew-1.11.0\include;$(ProjectDir)thirdparty\glfw-3.0.4.bin.WIN32\include;$(ProjectDir)thirdparty\glm;$(ProjectDir)thirdparty\stb_image;$(ProjectDir)thirdparty\freetype-2.3.5-1-bin\include;$(ProjectDir)thirdparty\freetype-2.3.5-1-bin\include\freetype2</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)thirdparty\glew-1.11.0\lib\Release\Win32;$(ProjectDir)thirdparty\glfw-3.0.4.bin.WIN32\lib-msvc120;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)thirdparty\glew-1.11.0\lib\Release\Win32;$(ProjectDir)thirdparty\glfw-3.0.4.bin.WIN32\lib-msvc120;$(ProjectDir)thirdparty\freetype-2.3.5-1-bin\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /s /e /y "$(ProjectDir)resources" "$(OutDir)" &amp;&amp; xcopy /s /e /y "$(ProjectDir)shared_dll" "$(OutDir)"</Command>
@@ -73,14 +73,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)thirdparty\glew-1.11.0\include;$(ProjectDir)thirdparty\glfw-3.0.4.bin.WIN32\include;$(ProjectDir)thirdparty\glm;$(ProjectDir)thirdparty\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)thirdparty\glew-1.11.0\include;$(ProjectDir)thirdparty\glfw-3.0.4.bin.WIN32\include;$(ProjectDir)thirdparty\glm;$(ProjectDir)thirdparty\stb_image;$(ProjectDir)thirdparty\freetype-2.3.5-1-bin\include;$(ProjectDir)thirdparty\freetype-2.3.5-1-bin\include\freetype2</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(ProjectDir)thirdparty\glew-1.11.0\lib\Release\Win32;$(ProjectDir)thirdparty\glfw-3.0.4.bin.WIN32\lib-msvc120;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)thirdparty\glew-1.11.0\lib\Release\Win32;$(ProjectDir)thirdparty\glfw-3.0.4.bin.WIN32\lib-msvc120;$(ProjectDir)thirdparty\freetype-2.3.5-1-bin\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /s /e /y "$(ProjectDir)resources" "$(OutDir)" &amp;&amp; xcopy /s /e /y "$(ProjectDir)shared_dll" "$(OutDir)"</Command>
@@ -94,6 +94,7 @@
     <ClCompile Include="source\atomic\Program.cpp" />
     <ClCompile Include="source\atomic\ClientReactor.cpp" />
     <ClCompile Include="source\atomic\Shader.cpp" />
+    <ClCompile Include="source\atomic\text.cpp" />
     <ClCompile Include="source\atomic\Texture.cpp" />
     <ClCompile Include="source\main.cpp" />
   </ItemGroup>
@@ -105,6 +106,7 @@
     <ClInclude Include="source\atomic\Program.h" />
     <ClInclude Include="source\atomic\ClientReactor.h" />
     <ClInclude Include="source\atomic\Shader.h" />
+    <ClInclude Include="source\atomic\text.h" />
     <ClInclude Include="source\atomic\Texture.h" />
     <ClInclude Include="source\exceptions.h" />
   </ItemGroup>
@@ -115,6 +117,8 @@
     <None Include="bin\shaders\post_vert.glsl" />
     <None Include="bin\shaders\primitive_frag.glsl" />
     <None Include="bin\shaders\primitive_vert.glsl" />
+    <None Include="bin\shaders\text_frag.glsl" />
+    <None Include="bin\shaders\text_vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

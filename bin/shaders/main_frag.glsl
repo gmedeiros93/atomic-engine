@@ -8,10 +8,8 @@
 
 struct Surface
 {
-	vec3 diffuse;
-	vec3 specular;
-
-	vec3 normal;
+	vec3 diffuse, specular;
+	vec3 pos, normal;
 
 	float shininess;
 };
@@ -30,14 +28,10 @@ struct Light
 {
 	int type;
 
-	// position or direction
-	vec3 vec;
-
-	// color
+	vec3 pos, dir;
 	vec3 ambient, diffuse, specular;
 
-	// falloff
-	float linear, quadratic;
+	float falloff1, falloff2;
 };
 
 in vec2 fragTexCoord;
@@ -54,8 +48,8 @@ uniform int totalLights;
 uniform Light lights[MAX_LIGHTS];
 
 vec3 applyDirLight(Light light, Surface surf, vec3 viewDir);
-vec3 applyPointLight(Light light, Surface surf, vec3 pos, vec3 viewDir);
-vec3 applySpotLight(Light light, Surface surf, bool not);
+vec3 applyPointLight(Light light, Surface surf, vec3 viewDir);
+vec3 applySpotLight(Light light, Surface surf, vec3 viewDir);
 
 void main()
 {
@@ -70,6 +64,7 @@ void main()
 	
 	Surface surf;
 
+	surf.pos = surfacePos;
 	surf.normal = normal;
 	surf.diffuse = material.diffuseColor * surfaceColor.rgb;
 	surf.specular = material.specularColor;
@@ -88,11 +83,11 @@ void main()
 			break;
 
 		case POINT_LIGHT:
-			value = applyPointLight(lights[i], surf, surfacePos, surfaceViewDir);
+			value = applyPointLight(lights[i], surf, surfaceViewDir);
 			break;
 
 		case SPOT_LIGHT:
-			value = applySpotLight(lights[i], surf, true);
+			value = applySpotLight(lights[i], surf, surfaceViewDir);
 			break;
 
 		default:
@@ -108,12 +103,12 @@ void main()
 
 vec3 applyDirLight(Light light, Surface surf, vec3 viewDir)
 {
-	float diff = max(0.0f, dot(surf.normal, light.vec));
+	float diff = max(0.0f, dot(surf.normal, light.dir));
 	float spec = 0.0f;
 
 	if (diff > 0.0f)
 	{
-		vec3 reflectDir = reflect(-light.vec, surf.normal);
+		vec3 reflectDir = reflect(-light.dir, surf.normal);
 		spec = pow(max(0.0f, dot(viewDir, reflectDir)), surf.shininess);
 	}
 
@@ -124,10 +119,9 @@ vec3 applyDirLight(Light light, Surface surf, vec3 viewDir)
 	return ambient + diffuse + specular;
 }
 
-vec3 applyPointLight(Light light, Surface surf, vec3 pos, vec3 viewDir)
+vec3 applyPointLight(Light light, Surface surf, vec3 viewDir)
 {
-	vec3 lightSub = light.vec - pos;
-	vec3 lightDir = normalize(lightSub);
+	vec3 lightDir = normalize(light.pos - surf.pos);
 
 	float diff = max(0.0f, dot(surf.normal, lightDir));
 	float spec = 0.0f;
@@ -138,11 +132,11 @@ vec3 applyPointLight(Light light, Surface surf, vec3 pos, vec3 viewDir)
 		spec = pow(max(0.0f, dot(viewDir, reflectDir)), surf.shininess);
 	}
 
-	float distance = length(lightSub);
+	float distance = distance(light.pos, surf.pos);
 
 	float attenuation = 1.0f / (1.0f +
-		light.linear * distance +
-		light.quadratic * (distance * distance));
+		light.falloff1 * distance +
+		light.falloff2 * (distance * distance));
 
 	vec3 diffuse = light.diffuse * diff * surf.diffuse;
 	vec3 specular = light.specular * spec * surf.specular;
@@ -150,7 +144,25 @@ vec3 applyPointLight(Light light, Surface surf, vec3 pos, vec3 viewDir)
 	return attenuation * (diffuse + specular);
 }
 
-vec3 applySpotLight(Light light, Surface surf, bool not)
+vec3 applySpotLight(Light light, Surface surf, vec3 viewDir)
 {
-	return vec3(1.0f, 0.0f, 1.0f);
+	vec3 lightDir = normalize(light.pos - surf.pos);
+	
+	float diff = max(0.0f, dot(surf.normal, lightDir));
+	float spec = 0.0f;
+
+	if (diff > 0.0f)
+	{
+		vec3 reflectDir = reflect(-lightDir, surf.normal);
+		spec = pow(max(0.0f, dot(viewDir, reflectDir)), surf.shininess);
+	}
+
+	float theta = dot(lightDir, -light.dir);
+	float epsilon = (light.falloff1 - light.falloff2);
+	float intensity = clamp((theta - light.falloff2) / epsilon, 0.0f, 1.0f);
+	
+	vec3 diffuse = light.diffuse * diff * surf.diffuse;
+	vec3 specular = light.specular * spec * surf.specular;
+
+	return intensity * (diffuse + specular);
 }

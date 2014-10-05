@@ -1,24 +1,9 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
-#include <stdexcept>
-#include <sstream>
-#include <list>
 
 #include "exceptions.h"
-#include "atomic/Shader.h"
-#include "atomic/Program.h"
-#include "atomic/Bitmap.h"
-#include "atomic/Texture.h"
-#include "atomic/Camera.h"
-#include "atomic/Model.h"
-#include "atomic/Window.h"
 #include "atomic/ClientReactor.h"
+#include "atomic/Model.h"
 
 void atomic_main(int argc, char *argv[])
 {
@@ -33,13 +18,18 @@ void atomic_main(int argc, char *argv[])
 
 	reactor->addInstance(instance);
 	reactor->run();
+
+	delete reactor;
 }
 
 int main(int argc, char *argv[])
 {
+#ifndef _DEBUG
 	try
 	{
+#endif
 		atomic_main(argc, argv);
+#ifndef _DEBUG
 	}
 	catch (atomic::error e)
 	{
@@ -51,6 +41,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Uncaught exception: %s\n", e.what());
 		return 1;
 	}
+#endif
 
 	return 0;
 }

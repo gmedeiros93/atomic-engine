@@ -8,18 +8,58 @@
 
 #include <sstream>
 #include <glm/glm.hpp>
+#include "Program.h"
 
 namespace atomic
 {
-	struct Light
+	class Light
 	{
-		int type;
+	private:
+		virtual int getType() = 0;
 
-		glm::vec3 vec;
-		glm::vec3 ambient, diffuse, specular;
+	protected:
+		const char *getUniformName(int index, const char *attribute);
 
-		float linear, quadratic;
+	public:
+		glm::vec3 diffuse, specular;
+		virtual void upload(Program *program, int index);
 	};
 
-	const char *lightUniformName(int index, const char *attribute);
+	class DirLight : public Light
+	{
+	private:
+		int getType();
+
+	public:
+		glm::vec3 dir;
+		glm::vec3 ambient;
+
+		virtual void upload(Program *progam, int index);
+	};
+
+	class PointLight : public Light
+	{
+	private:
+		int getType();
+
+	public:
+		glm::vec3 pos;
+		float linear, quadratic;
+
+		virtual void upload(Program *progam, int index);
+	};
+
+	class SpotLight : public Light
+	{
+	private:
+		int getType();
+
+	public:
+		glm::vec3 pos, dir;
+		
+		float inner;
+		float outer;
+
+		virtual void upload(Program *progam, int index);
+	};
 };

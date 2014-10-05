@@ -1,3 +1,4 @@
+#include <memory>
 #include <fstream>
 #include "Model.h"
 #include <GLFW/glfw3.h>
@@ -69,30 +70,37 @@ void ModelInstance::draw(Camera *camera, float aspect, float time)
 	shaders->setUniform("pointLights[0].quadraticFalloff", 0.44);*/
 	shaders->setUniform("cameraPos", camera->getPosition());
 
-	std::vector<Light> lights;
+	std::vector<std::shared_ptr<Light>> lights;
 
-	Light playerLight;
-	playerLight.type = POINT_LIGHT;
-	playerLight.vec = camera->getPosition();
-	playerLight.diffuse = glm::vec3(1.0f);
-	playerLight.specular = glm::vec3(1.0f);
-	playerLight.linear = 0.35f;
-	playerLight.quadratic = 0.44f;
-
+	std::shared_ptr<SpotLight> playerLight(new SpotLight());
+	playerLight->pos = camera->getPosition();
+	playerLight->dir = camera->getForwardVector();
+	playerLight->diffuse = glm::vec3(1.0f);
+	playerLight->specular = glm::vec3(1.0f);
+	playerLight->inner = 0.91f;
+	playerLight->outer = 0.82f;
 	lights.push_back(playerLight);
 
+	std::shared_ptr<DirLight> sunLight(new DirLight());
+	sunLight->dir = glm::normalize(glm::vec3(-1));
+	sunLight->ambient = glm::vec3(0.01f);
+	sunLight->diffuse = glm::vec3(0.1f);
+	sunLight->specular = glm::vec3(0.1f);
+	lights.push_back(sunLight);
+	
 	shaders->setUniform("totalLights", (int)lights.size());
-
+	
 	for (size_t i = 0; i < lights.size(); i++)
 	{
-		shaders->setUniform(lightUniformName(i, "type"), lights[i].type);
+		lights[i]->upload(shaders, i);
+		/*shaders->setUniform(lightUniformName(i, "type"), lights[i].type);
 		shaders->setUniform(lightUniformName(i, "vec"), lights[i].vec);
 		shaders->setUniform(lightUniformName(i, "ambient"), lights[i].ambient);
 		shaders->setUniform(lightUniformName(i, "diffuse"), lights[i].diffuse);
 		shaders->setUniform(lightUniformName(i, "specular"), lights[i].specular);
 		shaders->setUniform(lightUniformName(i, "diffuse"), lights[i].diffuse);
 		shaders->setUniform(lightUniformName(i, "linear"), lights[i].linear);
-		shaders->setUniform(lightUniformName(i, "quadratic"), lights[i].quadratic);
+		shaders->setUniform(lightUniformName(i, "quadratic"), lights[i].quadratic);*/
 	}
 	
 	glActiveTexture(GL_TEXTURE1);
