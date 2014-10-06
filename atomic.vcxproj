@@ -89,6 +89,7 @@
   <ItemGroup>
     <ClCompile Include="source\atomic\Bitmap.cpp" />
     <ClCompile Include="source\atomic\Camera.cpp" />
+    <ClCompile Include="source\atomic\Font.cpp" />
     <ClCompile Include="source\atomic\Light.cpp" />
     <ClCompile Include="source\atomic\Model.cpp" />
     <ClCompile Include="source\atomic\Program.cpp" />
@@ -101,6 +102,7 @@
   <ItemGroup>
     <ClInclude Include="source\atomic\Bitmap.h" />
     <ClInclude Include="source\atomic\Camera.h" />
+    <ClInclude Include="source\atomic\Font.h" />
     <ClInclude Include="source\atomic\Light.h" />
     <ClInclude Include="source\atomic\Model.h" />
     <ClInclude Include="source\atomic\Program.h" />

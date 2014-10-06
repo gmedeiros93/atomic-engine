@@ -1,3 +1,5 @@
+#include <thread>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -160,6 +162,7 @@ void ClientReactor::run()
 
 	bool hadFocus = false;
 	double delta = 0.0f;
+	double target = 1.0f / 60;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -173,6 +176,12 @@ void ClientReactor::run()
 
 		hadFocus = glfwGetWindowAttrib(window, GLFW_FOCUSED) == 1;
 		delta = glfwGetTime() - time;
+
+		if (delta < target)
+		{
+			long durr = (target - delta) / 1000000000;
+			std::this_thread::sleep_for(std::chrono::nanoseconds(durr));
+		}
 	}
 
 	glfwSetWindowShouldClose(window, 0);
@@ -248,18 +257,23 @@ void ClientReactor::draw(float delta)
 	// Extra
 	drawGizmo();
 
+	float sx = 1.0f / 16;
+	float sy = 1.0f / 16;
+
 	//font->setSize(0, 16);
 	//font->render("hello world", -1 + sx * 8, 1 - 50 * sy, sx, sy);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//font->render("hello world", 0.0f, 0.0f, sx, sy, camera->getProjectionMatrix(aspectRatio) * camera->getViewMatrix());
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//font->render(str, -1 + sx * 8, 1 - 50 * sy, sx, sy, glm::mat4());
 
-	double start_text = glfwGetTime();
+	/*double start_text = glfwGetTime();
 	drawDebugText("mspf  ", delta, 0);
 	drawDebugText("clear ", time_clear, 24);
 	drawDebugText("scene ", time_scene, 36);
 	drawDebugText("post  ", time_post, 48);
 	double time_text = glfwGetTime() - start_text;
-	drawDebugText("^text ", time_text, 60);
+	drawDebugText("^text ", time_text, 60);*/
 }
 
 void ClientReactor::drawDebugText(const char *prefix, double value, int offset)

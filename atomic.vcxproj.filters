@@ -45,6 +45,9 @@
     <ClCompile Include="source\atomic\text.cpp">
       <Filter>source\atomic</Filter>
     </ClCompile>
+    <ClCompile Include="source\atomic\Font.cpp">
+      <Filter>source\atomic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\atomic\Bitmap.h">
@@ -75,6 +78,9 @@
       <Filter>source\atomic</Filter>
     </ClInclude>
     <ClInclude Include="source\atomic\text.h">
+      <Filter>source\atomic</Filter>
+    </ClInclude>
+    <ClInclude Include="source\atomic\Font.h">
       <Filter>source\atomic</Filter>
     </ClInclude>
   </ItemGroup>
